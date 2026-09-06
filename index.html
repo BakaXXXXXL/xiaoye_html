@@ -309,15 +309,15 @@ footer .sticker {
 
 /* ===== 音乐按钮 ===== */
 #music-toggle {
-  position: fixed; top: 16px; right: 16px; z-index: 200;
-  width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(42, 31, 20, 0.85); border: 1.5px solid var(--amber);
-  color: var(--amber); font-size: 1em;
+  position: fixed; top: 12px; right: 12px; z-index: 200;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(42, 31, 20, 0.7); border: 1px solid rgba(232, 163, 61, 0.5);
+  color: var(--amber); font-size: 0.8em;
   cursor: pointer; transition: all 0.3s;
   display: flex; align-items: center; justify-content: center;
   backdrop-filter: blur(6px);
 }
-#music-toggle:hover { background: rgba(232, 163, 61, 0.2); }
+#music-toggle:hover { background: rgba(232, 163, 61, 0.2); border-color: var(--amber); }
 
 /* ===== Lightbox ===== */
 #lightbox {
@@ -613,7 +613,7 @@ footer .sticker {
 
 <!-- 音乐（自动轮换播放） -->
 <audio id="audio" preload="auto"></audio>
-<button id="music-toggle" title="播放/暂停音乐">⏸</button>
+<button id="music-toggle" title="播放/暂停音乐">▶</button>
 
 <!-- Toast 提示 -->
 <div class="toast" id="toast"></div>
@@ -642,13 +642,17 @@ footer .sticker {
   let isPlaying = false;
   audio.volume = 0.3;
 
+  function setPlaying(v) {
+    isPlaying = v;
+    toggleBtn.textContent = v ? '♪' : '▶';
+  }
+
   function playNext() {
     audio.src = playlist[current];
     audio.play().then(() => {
       current = (current + 1) % playlist.length;
-      isPlaying = true;
-      toggleBtn.textContent = '⏸';
-    }).catch(() => {});
+      setPlaying(true);
+    }).catch(() => setPlaying(false));
   }
 
   audio.addEventListener('ended', playNext);
@@ -656,17 +660,18 @@ footer .sticker {
   toggleBtn.addEventListener('click', () => {
     if (isPlaying) {
       audio.pause();
-      isPlaying = false;
-      toggleBtn.textContent = '▶';
+      setPlaying(false);
+    } else if (audio.src && !audio.paused) {
+      // 已在播放中但状态不同步，修正
+      setPlaying(true);
     } else {
-      audio.play().then(() => {
-        isPlaying = true;
-        toggleBtn.textContent = '⏸';
-      }).catch(() => playNext());
+      // 没在播放，开始播放
+      if (!audio.src) playNext();
+      else audio.play().then(() => setPlaying(true)).catch(() => playNext());
     }
   });
 
-  // 自动尝试播放
+  // 尝试自动播放，被阻止则等用户点击
   playNext();
 })();
 
