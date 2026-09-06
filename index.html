@@ -178,18 +178,15 @@ input, textarea, [contenteditable] { user-select: text; -webkit-user-select: tex
 
 /* ===== 性格卡片 ===== */
 .personality-scroll {
-  display: flex; gap: 20px; overflow-x: auto; padding-bottom: 16px;
-  scroll-snap-type: x mandatory;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
 }
-.personality-scroll::-webkit-scrollbar { height: 4px; }
-.personality-scroll::-webkit-scrollbar-thumb { background: var(--caramel); border-radius: 2px; }
 .personality-card {
-  min-width: 260px; padding: 28px 24px;
+  padding: 28px 24px;
   background: var(--bg-card); border-left: 4px solid var(--amber);
-  scroll-snap-align: start; transition: all 0.3s; flex-shrink: 0;
+  transition: all 0.3s;
 }
 .personality-card:hover {
-  transform: rotate(-1deg) translateY(-4px);
+  transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(232, 163, 61, 0.15);
 }
 .personality-card h3 { color: var(--amber); margin-bottom: 12px; font-size: 1.15em; }
@@ -310,59 +307,6 @@ footer .sticker {
   opacity: 0.6; animation: float 4s ease-in-out infinite;
 }
 
-/* ===== 音乐控件 ===== */
-#music-player {
-  position: fixed; bottom: 20px; left: 20px; z-index: 200;
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(42, 31, 20, 0.92); backdrop-filter: blur(10px);
-  padding: 8px 16px; border-radius: 30px;
-  border: 1px solid rgba(232, 163, 61, 0.25);
-}
-#music-btn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: transparent; border: 1.5px solid var(--amber);
-  color: var(--amber); font-size: 1.2em;
-  cursor: pointer; transition: all 0.3s;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-#music-btn:hover { background: rgba(232, 163, 61, 0.15); }
-#music-btn.playing { animation: pulse-ring 2s infinite; }
-@keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(232, 163, 61, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(232, 163, 61, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(232, 163, 61, 0); }
-}
-#music-info {
-  display: flex; flex-direction: column; gap: 2px; min-width: 0;
-}
-#track-name {
-  font-size: 0.8em; color: var(--pudding); white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis; max-width: 140px;
-}
-#track-controls {
-  display: flex; gap: 6px;
-}
-#track-controls button {
-  background: transparent; border: none; color: var(--cream);
-  font-size: 0.9em; cursor: pointer; padding: 0 4px; opacity: 0.6;
-  transition: opacity 0.2s;
-}
-#track-controls button:hover { opacity: 1; color: var(--amber); }
-#volume-slider {
-  width: 60px; height: 4px; appearance: none; -webkit-appearance: none;
-  background: var(--caramel); border-radius: 2px; cursor: pointer;
-}
-#volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 12px; height: 12px;
-  background: var(--amber); border-radius: 50%; cursor: pointer;
-}
-@media (max-width: 480px) {
-  #music-player { bottom: 12px; left: 12px; padding: 6px 12px; }
-  #music-btn { width: 34px; height: 34px; font-size: 1em; }
-  #track-name { max-width: 80px; font-size: 0.75em; }
-  #volume-slider { width: 40px; }
-}
-
 /* ===== Lightbox ===== */
 #lightbox {
   position: fixed; inset: 0; z-index: 500;
@@ -400,12 +344,14 @@ footer .sticker {
   .appearance-text { columns: 1; }
   .shop-grid { grid-template-columns: 1fr; }
   .gallery-masonry { columns: 2; }
+  .personality-scroll { grid-template-columns: repeat(2, 1fr); }
   #hero-sticker { width: 120px; bottom: 20px; right: 20px; }
   #live2d-container { width: 150px; height: 225px; }
 }
 @media (max-width: 480px) {
   #hero-content h1 { font-size: 2em; }
   .gallery-masonry { columns: 1; }
+  .personality-scroll { grid-template-columns: 1fr; }
   .section-title { font-size: 1.6em; }
   #live2d-container { display: none; }
 }
@@ -653,19 +599,8 @@ footer .sticker {
   <p style="margin-top: 24px; font-size: 0.8em; opacity: 0.4;">Created with care for Xiaoye</p>
 </footer>
 
-<!-- 音乐控件 -->
-<div id="music-player">
-  <audio id="audio" preload="auto"></audio>
-  <button id="music-btn" title="播放/暂停音乐">♪</button>
-  <div id="music-info">
-    <div id="track-name">点击播放</div>
-    <div id="track-controls">
-      <button id="prev-btn" title="上一首">⟨</button>
-      <button id="next-btn" title="下一首">⟩</button>
-    </div>
-  </div>
-  <input type="range" id="volume-slider" min="0" max="100" value="30">
-</div>
+<!-- 音乐（自动轮换播放） -->
+<audio id="audio" preload="auto"></audio>
 
 <!-- Toast 提示 -->
 <div class="toast" id="toast"></div>
@@ -680,63 +615,31 @@ footer .sticker {
 <div id="live2d-container"></div>
 
 <script>
-// ===== 音乐系统（本地播放列表）=====
-const MusicSystem = (() => {
+// ===== 音乐系统（自动轮换播放）=====
+(function() {
   const audio = document.getElementById('audio');
-  const btn = document.getElementById('music-btn');
-  const trackName = document.getElementById('track-name');
-  const prevBtn = document.getElementById('prev-btn');
-  const nextBtn = document.getElementById('next-btn');
-  const volSlider = document.getElementById('volume-slider');
-
   const playlist = [
-    { file: 'assets/music/01-樱之原.mp3', title: '樱之原' },
-    { file: 'assets/music/02-海浪海鸥和你.mp3', title: '海浪、海鸥和你' },
-    { file: 'assets/music/03-星奏.mp3', title: '星奏' },
-    { file: 'assets/music/04-Blue-Farewell.mp3', title: 'Blue Farewell' },
+    'assets/music/01-樱之原.mp3',
+    'assets/music/02-海浪海鸥和你.mp3',
+    'assets/music/03-星奏.mp3',
+    'assets/music/04-Blue-Farewell.mp3',
   ];
   let current = 0;
-  let isPlaying = false;
-  let loaded = false;
-
-  function loadTrack(i) {
-    current = ((i % playlist.length) + playlist.length) % playlist.length;
-    audio.src = playlist[current].file;
-    trackName.textContent = playlist[current].title;
-    loaded = true;
-  }
-
-  function play() {
-    if (!loaded) loadTrack(0);
-    audio.play().then(() => {
-      isPlaying = true;
-      btn.textContent = '⏸';
-      btn.classList.add('playing');
-    }).catch(e => { console.warn('Audio play blocked:', e); });
-  }
-
-  function pause() {
-    audio.pause();
-    isPlaying = false;
-    btn.textContent = '▶';
-    btn.classList.remove('playing');
-  }
-
-  function toggle() { isPlaying ? pause() : play(); }
-  function next() { loadTrack(current + 1); if (isPlaying) play(); }
-  function prev() { loadTrack(current - 1); if (isPlaying) play(); }
-
-  btn.addEventListener('click', toggle);
-  nextBtn.addEventListener('click', next);
-  prevBtn.addEventListener('click', prev);
-  volSlider.addEventListener('input', e => { audio.volume = e.target.value / 100; });
-  audio.addEventListener('ended', next);
   audio.volume = 0.3;
-  loadTrack(0);
-  trackName.textContent = '点击播放';
-  loaded = false;
 
-  return { toggle };
+  function playNext() {
+    audio.src = playlist[current];
+    audio.play().then(() => { current = (current + 1) % playlist.length; }).catch(() => {});
+  }
+
+  audio.addEventListener('ended', playNext);
+  // 尝试自动播放，浏览器可能阻止静音策略
+  document.addEventListener('click', function firstClick() {
+    if (audio.paused) playNext();
+    document.removeEventListener('click', firstClick);
+  }, { once: true });
+  // 直接尝试自动播放
+  playNext();
 })();
 
 // ===== 鼠标指针 & 拖尾效果 =====
