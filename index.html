@@ -7,7 +7,19 @@
 <style>
 /* ===== 基础重置 & CSS 变量 ===== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
+html { scroll-behavior: smooth; user-select: none; -webkit-user-select: none; }
+body {
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg-deep);
+  color: var(--cream);
+  line-height: 1.9;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L12 22l4.5-7C18 13.5 19 11.5 19 9c0-4-3-7-7-7z' fill='%23FFF8EE' stroke='%23E8A33D' stroke-width='1.5'/%3E%3Ccircle cx='9' cy='8' r='1.5' fill='%23E8A33D'/%3E%3Ccircle cx='15' cy='8' r='1.5' fill='%237B5EAF'/%3E%3C/svg%3E") 12 12, auto;
+}
+* { user-select: none; -webkit-user-select: none; cursor: inherit; }
+input, textarea, [contenteditable] { user-select: text; -webkit-user-select: text; cursor: text; }
   --bg-deep: #2A1F14;
   --bg-warm: #3D2B1F;
   --cream: #FFF8EE;
