@@ -7,6 +7,17 @@
 <style>
 /* ===== 基础重置 & CSS 变量 ===== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg-deep: #2A1F14;
+  --bg-warm: #3D2B1F;
+  --cream: #FFF8EE;
+  --amber: #E8A33D;
+  --purple: #7B5EAF;
+  --pudding: #F5DFA1;
+  --caramel: #8C5A3B;
+  --salt-caramel: #B87F4A;
+  --bg-card: rgba(61, 43, 31, 0.85);
+}
 html { scroll-behavior: smooth; user-select: none; -webkit-user-select: none; }
 body {
   font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -21,25 +32,6 @@ body {
 * { user-select: none; -webkit-user-select: none; }
 button, a, .swatch, .gallery-item, .personality-card { cursor: pointer; }
 input, textarea, [contenteditable] { user-select: text; -webkit-user-select: text; cursor: text; }
-  --bg-deep: #2A1F14;
-  --bg-warm: #3D2B1F;
-  --cream: #FFF8EE;
-  --amber: #E8A33D;
-  --purple: #7B5EAF;
-  --pudding: #F5DFA1;
-  --caramel: #8C5A3B;
-  --salt-caramel: #B87F4A;
-  --bg-card: rgba(61, 43, 31, 0.85);
-}
-html { scroll-behavior: smooth; }
-body {
-  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: var(--bg-deep);
-  color: var(--cream);
-  line-height: 1.9;
-  overflow-x: hidden;
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L12 22l4.5-7C18 13.5 19 11.5 19 9c0-4-3-7-7-7z' fill='%23FFF8EE' stroke='%23E8A33D' stroke-width='1.5'/%3E%3Ccircle cx='9' cy='8' r='1.5' fill='%23E8A33D'/%3E%3Ccircle cx='15' cy='8' r='1.5' fill='%237B5EAF'/%3E%3C/svg%3E") 12 12, auto;
-}
 ::selection { background: rgba(232, 163, 61, 0.3); color: var(--cream); }
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-deep); }
@@ -100,7 +92,7 @@ nav a:hover, nav a.active {
 }
 #hero-bg img {
   width: 100%; height: 100%; object-fit: cover;
-  opacity: 0.35; filter: blur(2px);
+  opacity: 0.5; filter: blur(0);
 }
 #hero-content {
   position: relative; z-index: 2; text-align: center;
@@ -120,11 +112,13 @@ nav a:hover, nav a.active {
   50% { background-position: 100% center; }
 }
 #hero-content .subtitle {
-  font-size: 1.3em; color: var(--salt-caramel); margin-bottom: 8px;
+  font-size: 1.3em; color: var(--pudding); margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 #hero-content .tagline {
-  font-size: 1em; color: rgba(255, 248, 238, 0.6);
+  font-size: 1em; color: rgba(255, 248, 238, 0.85);
   font-style: italic;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
 #hero-sticker {
   position: absolute; bottom: 40px; right: 40px; z-index: 3;
@@ -164,7 +158,7 @@ nav a:hover, nav a.active {
 }
 .info-item:hover { background: rgba(232, 163, 61, 0.1); transform: translateX(4px); }
 .info-item strong { color: var(--amber); display: block; margin-bottom: 6px; }
-.info-item em { color: var(--pudding); font-style: normal; font-size: 0.85em; }
+.info-item em { color: var(--cream); font-style: normal; font-size: 0.85em; opacity: 0.75; }
 .info-portrait {
   position: sticky; top: 100px;
 }
@@ -227,11 +221,11 @@ nav a:hover, nav a.active {
   position: absolute; inset: 0; z-index: 0;
 }
 #story-bg img {
-  width: 100%; height: 100%; object-fit: cover; opacity: 0.3;
+  width: 100%; height: 100%; object-fit: cover; opacity: 0.25;
 }
 #story-bg::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, var(--bg-deep), transparent 20%, transparent 80%, var(--bg-deep));
+  background: linear-gradient(180deg, var(--bg-deep) 0%, rgba(42,31,20,0.5) 15%, rgba(42,31,20,0.5) 85%, var(--bg-deep) 100%);
 }
 .story-content {
   position: relative; z-index: 1; max-width: 700px; margin: 0 auto;
@@ -244,8 +238,9 @@ nav a:hover, nav a.active {
 .story-block h3 {
   font-family: "Noto Serif SC", serif;
   color: var(--amber); font-size: 1.4em; margin-bottom: 12px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
 }
-.story-block p { text-indent: 2em; font-size: 1.05em; }
+.story-block p { text-indent: 2em; font-size: 1.05em; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
 
 /* ===== 人物关系 ===== */
 .relation-map {
@@ -290,8 +285,8 @@ nav a:hover, nav a.active {
   font-family: "Noto Serif SC", serif; color: var(--amber);
   font-size: 1.1em;
 }
-.shop-board p { margin-bottom: 16px; color: rgba(255, 248, 238, 0.85); }
-.shop-board strong { color: var(--pudding); }
+.shop-board p { margin-bottom: 16px; color: var(--cream); }
+.shop-board strong { color: var(--amber); }
 .shop-images { display: flex; flex-direction: column; gap: 20px; }
 .shop-images img {
   width: 100%; border-radius: 8px;
