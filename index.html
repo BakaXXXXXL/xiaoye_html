@@ -612,7 +612,7 @@ footer .sticker {
 </footer>
 
 <!-- 音乐（自动轮换播放） -->
-<audio id="audio" preload="auto"></audio>
+<audio id="audio" preload="auto" muted autoplay></audio>
 <button id="music-toggle" title="播放/暂停音乐">▶</button>
 
 <!-- Toast 提示 -->
@@ -649,9 +649,13 @@ footer .sticker {
 
   function playNext() {
     audio.src = playlist[current];
+    // 先静音播放（绕过浏览器限制），再取消静音
+    audio.muted = true;
     audio.play().then(() => {
       current = (current + 1) % playlist.length;
       setPlaying(true);
+      // 短暂延迟后取消静音，实现"自动有声播放"
+      setTimeout(() => { audio.muted = false; }, 200);
     }).catch(() => setPlaying(false));
   }
 
@@ -661,17 +665,21 @@ footer .sticker {
     if (isPlaying) {
       audio.pause();
       setPlaying(false);
-    } else if (audio.src && !audio.paused) {
-      // 已在播放中但状态不同步，修正
-      setPlaying(true);
     } else {
-      // 没在播放，开始播放
-      if (!audio.src) playNext();
+      audio.muted = false;
+      if (!audio.src || audio.readyState === 0) playNext();
       else audio.play().then(() => setPlaying(true)).catch(() => playNext());
     }
   });
 
-  // 尝试自动播放，被阻止则等用户点击
+  // 首次交互时取消静音并确保播放
+  document.addEventListener('click', function once() {
+    audio.muted = false;
+    if (!isPlaying) playNext();
+    document.removeEventListener('click', once);
+  }, { once: true });
+
+  // 尝试自动播放
   playNext();
 })();
 
