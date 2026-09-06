@@ -307,6 +307,18 @@ footer .sticker {
   opacity: 0.6; animation: float 4s ease-in-out infinite;
 }
 
+/* ===== 音乐按钮 ===== */
+#music-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 200;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(42, 31, 20, 0.85); border: 1.5px solid var(--amber);
+  color: var(--amber); font-size: 1em;
+  cursor: pointer; transition: all 0.3s;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(6px);
+}
+#music-toggle:hover { background: rgba(232, 163, 61, 0.2); }
+
 /* ===== Lightbox ===== */
 #lightbox {
   position: fixed; inset: 0; z-index: 500;
@@ -601,6 +613,7 @@ footer .sticker {
 
 <!-- 音乐（自动轮换播放） -->
 <audio id="audio" preload="auto"></audio>
+<button id="music-toggle" title="播放/暂停音乐">⏸</button>
 
 <!-- Toast 提示 -->
 <div class="toast" id="toast"></div>
@@ -618,6 +631,7 @@ footer .sticker {
 // ===== 音乐系统（自动轮换播放）=====
 (function() {
   const audio = document.getElementById('audio');
+  const toggleBtn = document.getElementById('music-toggle');
   const playlist = [
     'assets/music/01-樱之原.mp3',
     'assets/music/02-海浪海鸥和你.mp3',
@@ -625,20 +639,34 @@ footer .sticker {
     'assets/music/04-Blue-Farewell.mp3',
   ];
   let current = 0;
+  let isPlaying = false;
   audio.volume = 0.3;
 
   function playNext() {
     audio.src = playlist[current];
-    audio.play().then(() => { current = (current + 1) % playlist.length; }).catch(() => {});
+    audio.play().then(() => {
+      current = (current + 1) % playlist.length;
+      isPlaying = true;
+      toggleBtn.textContent = '⏸';
+    }).catch(() => {});
   }
 
   audio.addEventListener('ended', playNext);
-  // 尝试自动播放，浏览器可能阻止静音策略
-  document.addEventListener('click', function firstClick() {
-    if (audio.paused) playNext();
-    document.removeEventListener('click', firstClick);
-  }, { once: true });
-  // 直接尝试自动播放
+
+  toggleBtn.addEventListener('click', () => {
+    if (isPlaying) {
+      audio.pause();
+      isPlaying = false;
+      toggleBtn.textContent = '▶';
+    } else {
+      audio.play().then(() => {
+        isPlaying = true;
+        toggleBtn.textContent = '⏸';
+      }).catch(() => playNext());
+    }
+  });
+
+  // 自动尝试播放
   playNext();
 })();
 
